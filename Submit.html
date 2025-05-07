@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Confirm Your Electives</title>
+  <style>
+    body {
+      background: #121212;
+      color: #f1f1f1;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      color: #00cec9;
+    }
+    .summary {
+      margin-top: 30px;
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .summary div {
+      margin: 10px 0;
+      font-size: 18px;
+    }
+    .total {
+      font-weight: bold;
+      margin-top: 20px;
+      font-size: 20px;
+    }
+    button {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #00b894;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #019875;
+    }
+  </style>
+</head>
+<body>
+  <h1>Review Your Selections</h1>
+  <div class="summary">
+    <div id="slotA"></div>
+    <div id="slotB"></div>
+    <div id="slotC"></div>
+    <div class="total" id="totalCredits"></div>
+    <button onclick="submitData()">Confirm & Submit</button>
+  </div>
+
+  <script>
+    const subjects = {
+      "Quantum Machine Learning": 3,
+      "Quantum Communication & Cryptography": 3,
+      "Data Mining and Analytics": 3,
+      "Network Security and Cryptography": 3,
+      "Cloud Services Solution Architect": 3,
+      "Cloud Infrastructure Foundations": 3,
+      "Offensive Security": 3,
+      "GPU Powered Computing": 3,
+      "Service Oriented Architecture and Microservices": 3,
+      "Natural Language Processing": 3,
+      "Elements of Aeronautics": 1,
+      "Renewable Sources of Energy": 1,
+      "Fundamentals of Biomedical Engineering": 1,
+      "Environmental Impact Assessment": 1,
+      "Water Pollution and its Management": 1
+    };
+
+    const slotA = localStorage.getItem("selected_A");
+    const slotB = localStorage.getItem("selected_B");
+    const slotC = localStorage.getItem("selected_C");
+    const username = localStorage.getItem("username");
+
+    const creditsA = subjects[slotA] || 0;
+    const creditsB = subjects[slotB] || 0;
+    const creditsC = subjects[slotC] || 0;
+    const total = creditsA + creditsB + creditsC;
+
+    document.getElementById("slotA").innerText = `Slot A: ${slotA} (${creditsA} credits)`;
+    document.getElementById("slotB").innerText = `Slot B: ${slotB} (${creditsB} credits)`;
+    document.getElementById("slotC").innerText = `Slot C: ${slotC} (${creditsC} credits)`;
+    document.getElementById("totalCredits").innerText = `Total Credits: ${total}`;
+
+    async function submitData() {
+      const response = await fetch("http://localhost:5000/api/finalSubmit", {
+        
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username,
+          subjects: [
+            { slot: "A", name: slotA, credits: creditsA },
+            { slot: "B", name: slotB, credits: creditsB },
+            { slot: "C", name: slotC, credits: creditsC }
+          ],
+          totalCredits: total
+        })
+      });
+
+      const result = await response.json();
+      alert(result.message);
+      if (response.ok) {
+        window.location.href = "success.html";
+      }
+    }
+  </script>
+</body>
+</html>

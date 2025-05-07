@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Select Slot</title>
+  <style>
+    body {
+      background: #121212;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+    .slot-title {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #00cec9;
+    }
+    .subject-list {
+      background: #1f1f1f;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 500px;
+    }
+    .subject-list label {
+      display: block;
+      margin: 10px 0;
+      cursor: pointer;
+    }
+    button {
+      padding: 10px 20px;
+      background: #00b894;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="slot-title" id="slotTitle">Choose a subject from Slot A</div>
+  <form id="slotForm">
+    <div class="subject-list" id="slotA"></div>
+    <div class="subject-list hidden" id="slotB"></div>
+    <div class="subject-list hidden" id="slotC"></div>
+    <button type="submit">Next</button>
+  </form>
+
+  <script>
+    const slots = {
+      A: [
+        { name: "Quantum Machine Learning", credits: 3 },
+        { name: "Quantum Communication & Cryptography", credits: 3 },
+        { name: "Data Mining and Analytics", credits: 3 },
+        { name: "Network Security and Cryptography", credits: 3 },
+        { name: "Cloud Services Solution Architect", credits: 3 }
+      ],
+      B: [
+        { name: "Cloud Infrastructure Foundations", credits: 3 },
+        { name: "Offensive Security", credits: 3 },
+        { name: "GPU Powered Computing", credits: 3 },
+        { name: "Service Oriented Architecture and Microservices", credits: 3 },
+        { name: "Natural Language Processing", credits: 3 }
+      ],
+      C: [
+        { name: "Elements of Aeronautics", credits: 1 },
+        { name: "Renewable Sources of Energy", credits: 1 },
+        { name: "Fundamentals of Biomedical Engineering", credits: 1 },
+        { name: "Environmental Impact Assessment", credits: 1 },
+        { name: "Water Pollution and its Management", credits: 1 }
+      ]
+    };
+
+    let currentSlot = 'A';
+    const form = document.getElementById("slotForm");
+    const slotTitle = document.getElementById("slotTitle");
+    const slotDivs = { A: document.getElementById("slotA"), B: document.getElementById("slotB"), C: document.getElementById("slotC") };
+
+    function renderSubjects(slot) {
+      const container = slotDivs[slot];
+      container.innerHTML = "";
+      slots[slot].forEach((subject, index) => {
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="radio" name="${slot}" value="${subject.name}" required> ${subject.name} (${subject.credits} credit${subject.credits > 1 ? 's' : ''})`;
+        container.appendChild(label);
+      });
+    }
+
+    renderSubjects("A");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const selected = document.querySelector(`input[name="${currentSlot}"]:checked`);
+      if (selected) {
+        localStorage.setItem(`selected_${currentSlot}`, selected.value);
+        if (currentSlot === 'A') {
+          slotDivs.A.classList.add("hidden");
+          slotDivs.B.classList.remove("hidden");
+          currentSlot = 'B';
+          slotTitle.innerText = "Choose a subject from Slot B";
+          renderSubjects("B");
+        } else if (currentSlot === 'B') {
+          slotDivs.B.classList.add("hidden");
+          slotDivs.C.classList.remove("hidden");
+          currentSlot = 'C';
+          slotTitle.innerText = "Choose a subject from Slot C";
+          renderSubjects("C");
+        } else {
+          const selectedSubjects = [
+            localStorage.getItem("selected_A"),
+            localStorage.getItem("selected_B"),
+            selected.value
+          ];
+          localStorage.setItem("selected_C", selected.value);
+          // redirect to backend or success page
+          window.location.href = "submit.html";
+        }
+      }
+    });
+  </script>
+</body>
+</html>
